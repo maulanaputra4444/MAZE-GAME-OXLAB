@@ -2,8 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Creative Portal - Personality Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>OX Lab - Creative Quest</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -12,102 +12,94 @@
             --text: #f1f5f9;
         }
 
+        * { touch-action: manipulation; box-sizing: border-box; }
+
         body {
             background-color: var(--bg);
             color: var(--text);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
+            padding: 10px;
         }
 
         #game-container {
             text-align: center;
-            max-width: 600px;
-            width: 90%;
-            padding: 20px;
+            width: 100%;
+            max-width: 500px;
         }
 
+        /* Canvas Responsif */
         canvas {
-            border: 4px solid var(--primary);
+            border: 3px solid var(--primary);
             border-radius: 8px;
             background: #1e293b;
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
             width: 100%;
-            max-width: 400px;
+            max-width: 350px;
+            height: auto;
+            margin-bottom: 15px;
         }
 
         .game-img {
             width: 100%;
-            max-width: 400px;
             height: auto;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 2px solid var(--primary);
         }
 
         .hidden { display: none; }
 
+        /* Kontrol D-Pad untuk Mobile */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            width: 180px;
+            margin: 15px auto;
+        }
+
+        .btn-ctrl {
+            background: rgba(56, 189, 248, 0.2);
+            border: 2px solid var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .btn-ctrl:active { background: var(--primary); }
+
+        /* Tombol Pilihan */
         .btn-choice {
             background: #1e293b;
             color: white;
             border: 2px solid var(--primary);
-            padding: 12px 20px;
-            margin: 8px;
+            padding: 15px;
+            margin: 8px 0;
             cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
+            border-radius: 10px;
             width: 100%;
-            max-width: 280px;
-            font-size: 0.9rem;
-        }
-
-        .btn-choice:hover {
-            background: var(--primary);
-            color: var(--bg);
-            font-weight: bold;
-        }
-
-        .result-card {
-            padding: 30px;
-            border: 2px solid var(--accent);
-            border-radius: 15px;
-            background: rgba(255,255,255,0.05);
-            animation: fadeIn 1s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Styling for OX Lab CTA */
-        .oxlab-cta {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .oxlab-cta p {
             font-size: 1rem;
-            margin-bottom: 10px;
+        }
+
+        .oxlab-cta {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(244, 114, 182, 0.1);
+            border-radius: 10px;
         }
 
         .oxlab-link {
             color: var(--accent);
             text-decoration: none;
             font-weight: bold;
-            font-size: 1.1rem;
-            border-bottom: 2px solid transparent;
-            transition: 0.3s;
-        }
-
-        .oxlab-link:hover {
-            border-bottom: 2px solid var(--accent);
-            letter-spacing: 1px;
+            display: inline-block;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -116,40 +108,42 @@
 <div id="game-container">
     <!-- Screen 1: Maze -->
     <div id="maze-screen">
-        <h2>Cari Jalan Keluar!</h2>
-        <p>Gunakan tombol panah untuk mencapai kotak hijau.</p>
+        <h3>Cari Jalan Keluar!</h3>
         <canvas id="mazeCanvas" width="400" height="400"></canvas>
+        
+        <!-- D-PAD -->
+        <div class="controls">
+            <div></div>
+            <button class="btn-ctrl" onclick="move(0, -1)">▲</button>
+            <div></div>
+            <button class="btn-ctrl" onclick="move(-1, 0)">◀</button>
+            <button class="btn-ctrl" onclick="move(0, 1)">▼</button>
+            <button class="btn-ctrl" onclick="move(1, 0)">▶</button>
+        </div>
     </div>
 
-    <!-- Screen 2: The Room (Locked Door) -->
+    <!-- Screen 2: Chamber -->
     <div id="room-screen" class="hidden">
-        <img src="https://placehold.co/600x400/1e293b/38bdf8?text=Pintu+Terkunci" alt="Pintu Terkunci" class="game-img">
-        <h2>Kamu Berhasil Keluar!</h2>
-        <p>Tapi pintu menuju dunia luar terkunci rapat. Bagaimana caramu membukanya?</p>
-        <div id="choices">
-            <button class="btn-choice" onclick="showResult('Engineer')">Bongkar panel sirkuit pintu</button>
-            <button class="btn-choice" onclick="showResult('Designer')">Identifikasi pola visual pada kunci</button>
-            <button class="btn-choice" onclick="showResult('Artist')">Gambar kunci ajaib di dinding</button>
-            <button class="btn-choice" onclick="showResult('Product Manager')">Baca manual & buat strategi pembukaan</button>
-        </div>
+        <img src="https://placehold.co/600x400/1e293b/38bdf8?text=Pintu+Terkunci" class="game-img">
+        <h3>Pintu Terkunci!</h3>
+        <p>Pilih cara membukanya:</p>
+        <button class="btn-choice" onclick="showResult('Engineer')">🛠 Bongkar Panel Kabel</button>
+        <button class="btn-choice" onclick="showResult('Designer')">👁 Cari Pola Rahasia</button>
+        <button class="btn-choice" onclick="showResult('Artist')">🎨 Gambar Kunci Ajaib</button>
+        <button class="btn-choice" onclick="showResult('Product Manager')">📋 Ikuti Manual Prosedur</button>
     </div>
 
-    <!-- Screen 3: Result (Opened Door) -->
+    <!-- Screen 3: Result -->
     <div id="result-screen" class="hidden">
-        <div class="result-card">
-            <img src="https://placehold.co/600x400/1e293b/f472b6?text=Pintu+Terbuka" alt="Pintu Terbuka" class="game-img">
-            <h1 id="personality-type"></h1>
-            <p id="personality-desc"></p>
-            
-            <!-- OX Lab CTA -->
-            <div class="oxlab-cta">
-                <p>Tertarik Game Development? OX Lab is here for you!</p>
-                <a href="https://www.instagram.com/ox.lab" target="_blank" class="oxlab-link">GET TO KNOW OXLAB!</a>
-            </div>
-
-            <br>
-            <button class="btn-choice" style="width: auto; margin-top: 20px;" onclick="location.reload()">Main Lagi</button>
+        <img src="https://placehold.co/600x400/1e293b/f472b6?text=Pintu+Terbuka" class="game-img">
+        <h2 id="personality-type"></h2>
+        <p id="personality-desc"></p>
+        
+        <div class="oxlab-cta">
+            <p>Tertarik Game Development?<br><b>OX Lab is here for you!</b></p>
+            <a href="https://www.instagram.com/ox.lab" target="_blank" class="oxlab-link">GET TO KNOW OXLAB!</a>
         </div>
+        <button class="btn-choice" style="margin-top: 20px;" onclick="location.reload()">Main Lagi</button>
     </div>
 </div>
 
@@ -160,16 +154,16 @@
     const cellSize = canvas.width / mazeSize;
     
     const maze = [
-        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 1, 0],
         [0, 1, 0, 1, 1, 0, 1, 0, 1, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-        [1, 1, 1, 0, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+        [1, 1, 1, 0, 1, 0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0, 1, 0],
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-        [0, 1, 1, 1, 1, 0, 0, 0, 1, 0]
+        [1, 1, 1, 0, 1, 0, 1, 1, 1, 0],
+        [0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0, 0, 0]
     ];
 
     let player = { x: 0, y: 0 };
@@ -193,40 +187,39 @@
         ctx.fill();
     }
 
-    window.addEventListener('keydown', (e) => {
-        let newX = player.x;
-        let newY = player.y;
-        if(e.key === 'ArrowUp') newY--;
-        if(e.key === 'ArrowDown') newY++;
-        if(e.key === 'ArrowLeft') newX--;
-        if(e.key === 'ArrowRight') newX++;
-
+    function move(dx, dy) {
+        let newX = player.x + dx;
+        let newY = player.y + dy;
         if(newX >= 0 && newX < mazeSize && newY >= 0 && newY < mazeSize && maze[newY][newX] === 0) {
             player.x = newX;
             player.y = newY;
             drawMaze();
-            checkWin();
-        }
-    });
-
-    function checkWin() {
-        if(player.x === goal.x && player.y === goal.y) {
-            document.getElementById('maze-screen').classList.add('hidden');
-            document.getElementById('room-screen').classList.remove('hidden');
+            if(player.x === goal.x && player.y === goal.y) {
+                document.getElementById('maze-screen').classList.add('hidden');
+                document.getElementById('room-screen').classList.remove('hidden');
+            }
         }
     }
 
+    // Tetap bisa pakai keyboard untuk testing di laptop
+    window.addEventListener('keydown', (e) => {
+        if(e.key === 'ArrowUp') move(0, -1);
+        if(e.key === 'ArrowDown') move(0, 1);
+        if(e.key === 'ArrowLeft') move(-1, 0);
+        if(e.key === 'ArrowRight') move(1, 0);
+    });
+
     const descriptions = {
-        'Engineer': 'Seseorang yang logis dan teknis. Kamu suka membongkar sesuatu untuk tahu cara kerjanya.',
-        'Designer': 'Kamu melihat dunia lewat fungsi dan estetika. Solusi bagimu haruslah indah dan mudah digunakan.',
-        'Artist': 'Kreativitasmu tidak terbatas. Kamu menciptakan jalanmu sendiri saat orang lain melihat tembok.',
-        'Product Manager': 'Kamu adalah pengatur strategi yang handal. Kamu melihat gambaran besar dan tahu cara mencapainya.'
+        'Engineer': 'Fokus pada fungsi dan logika. Kamu adalah tulang punggung teknis sebuah game!',
+        'Designer': 'Estetika dan kenyamanan adalah segalanya bagimu. Kamu membuat game terasa "hidup".',
+        'Artist': 'Dunia adalah kanvasmu. Kamu memberikan jiwa dan visual yang memukau pada setiap projek.',
+        'Product Manager': 'Visi dan strategi adalah kekuatanmu. Kamu memastikan semua elemen berjalan harmonis.'
     };
 
     function showResult(type) {
         document.getElementById('room-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('personality-type').innerText = "Tipe Kepribadian: " + type;
+        document.getElementById('personality-type').innerText = type;
         document.getElementById('personality-desc').innerText = descriptions[type];
     }
 

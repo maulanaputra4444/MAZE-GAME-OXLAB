@@ -32,7 +32,6 @@
             max-width: 500px;
         }
 
-        /* Canvas Responsif */
         canvas {
             border: 3px solid var(--primary);
             border-radius: 8px;
@@ -53,7 +52,7 @@
 
         .hidden { display: none; }
 
-        /* Kontrol D-Pad untuk Mobile */
+        /* Kontrol D-Pad */
         .controls {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -69,12 +68,11 @@
             padding: 15px;
             border-radius: 10px;
             font-size: 1.2rem;
-            cursor: pointer;
         }
 
         .btn-ctrl:active { background: var(--primary); }
 
-        /* Tombol Pilihan */
+        /* Tombol Umum */
         .btn-choice {
             background: #1e293b;
             color: white;
@@ -85,21 +83,46 @@
             border-radius: 10px;
             width: 100%;
             font-size: 1rem;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        /* Tombol OX Lab (CTA) */
+        .oxlab-btn {
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: block;
+            margin: 15px auto 0;
+            width: 100%;
+            max-width: 280px;
+            box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3);
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .oxlab-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(244, 114, 182, 0.5);
         }
 
         .oxlab-cta {
             margin-top: 25px;
             padding: 20px;
             background: rgba(244, 114, 182, 0.1);
-            border-radius: 10px;
+            border-radius: 15px;
+            border: 1px dashed var(--accent);
         }
 
-        .oxlab-link {
-            color: var(--accent);
-            text-decoration: none;
-            font-weight: bold;
-            display: inline-block;
-            margin-top: 10px;
+        .restart-btn {
+            background: transparent;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            margin-top: 30px;
+            font-size: 0.8rem;
         }
     </style>
 </head>
@@ -110,8 +133,6 @@
     <div id="maze-screen">
         <h3>Cari Jalan Keluar!</h3>
         <canvas id="mazeCanvas" width="400" height="400"></canvas>
-        
-        <!-- D-PAD -->
         <div class="controls">
             <div></div>
             <button class="btn-ctrl" onclick="move(0, -1)">▲</button>
@@ -126,7 +147,7 @@
     <div id="room-screen" class="hidden">
         <img src="https://placehold.co/600x400/1e293b/38bdf8?text=Pintu+Terkunci" class="game-img">
         <h3>Pintu Terkunci!</h3>
-        <p>Pilih cara membukanya:</p>
+        <p>Pilih alatmu untuk membuka pintu:</p>
         <button class="btn-choice" onclick="showResult('Engineer')">🛠 Bongkar Panel Kabel</button>
         <button class="btn-choice" onclick="showResult('Designer')">👁 Cari Pola Rahasia</button>
         <button class="btn-choice" onclick="showResult('Artist')">🎨 Gambar Kunci Ajaib</button>
@@ -141,13 +162,15 @@
         
         <div class="oxlab-cta">
             <p>Tertarik Game Development?<br><b>OX Lab is here for you!</b></p>
-            <a href="https://www.instagram.com/ox.lab" target="_blank" class="oxlab-link">GET TO KNOW OXLAB!</a>
+            <a href="https://www.instagram.com/ox.lab" target="_blank" class="oxlab-btn">GET TO KNOW OXLAB!</a>
         </div>
-        <button class="btn-choice" style="margin-top: 20px;" onclick="location.reload()">Main Lagi</button>
+
+        <button class="btn-choice restart-btn" onclick="location.reload()">Main Lagi</button>
     </div>
 </div>
 
 <script>
+    // Logic Javascript sama dengan sebelumnya
     const canvas = document.getElementById('mazeCanvas');
     const ctx = canvas.getContext('2d');
     const mazeSize = 10;
@@ -201,14 +224,6 @@
         }
     }
 
-    // Tetap bisa pakai keyboard untuk testing di laptop
-    window.addEventListener('keydown', (e) => {
-        if(e.key === 'ArrowUp') move(0, -1);
-        if(e.key === 'ArrowDown') move(0, 1);
-        if(e.key === 'ArrowLeft') move(-1, 0);
-        if(e.key === 'ArrowRight') move(1, 0);
-    });
-
     const descriptions = {
         'Engineer': 'Fokus pada fungsi dan logika. Kamu adalah tulang punggung teknis sebuah game!',
         'Designer': 'Estetika dan kenyamanan adalah segalanya bagimu. Kamu membuat game terasa "hidup".',
@@ -219,7 +234,7 @@
     function showResult(type) {
         document.getElementById('room-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('personality-type').innerText = type;
+        document.getElementById('personality-type').innerText = "Tipe: " + type;
         document.getElementById('personality-desc').innerText = descriptions[type];
     }
 
